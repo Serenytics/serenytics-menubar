@@ -1,0 +1,20 @@
+{
+  "name": "serenytics-menubar",
+  "version": "0.1.0",
+  "description": "Menu bar for Serenytics dashboards",
+  "author": "Adrien Chauve <adrien.chauve@serenytics.com> (https://www.serenytics.com)",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "4.0.0",
+    "menubar": "5.2.3"
+  },
+  "devDependencies": {
+    "electron-packager": "8.7.0",
+    "electron-prebuilt": "1.4.13"
+  },
+  "main": "main.js",
+  "scripts": {
+    "build": "electron-packager . Serenytics --icon=Icon.icns --overwrite",
+    "start": "electron ."
+  }
+}

@@ -1,0 +1,83 @@
+<html>
+<head>
+    <title>My Serenytics Dashboard</title>
+</head>
+<body>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script type="text/javascript">
+    const rootUrl = 'https://app.serenytics.com/viewer';
+
+    let auth = null;
+    let config = null;
+
+    window.main = function (jsonConfig) {
+        config = JSON.parse(jsonConfig);
+        getAuthAndLoadDashboard();
+    };
+
+    function getAuthAndLoadDashboard() {
+        const authorization = 'Basic ' + btoa(config.username + ':' + config.password);
+
+        axios({
+            method: 'get',
+            url: 'https://api.serenytics.com/api/token',
+            data: {},
+            headers: {
+                Authorization: authorization
+            }
+        }).then(response => {
+            auth = btoa(JSON.stringify({
+                token: response.data.token
+            }));
+
+            if (config.webAppUuid) {
+                loadDashboard(config.webAppUuid);
+            } else {
+                myDashboards();
+            }
+
+        }).catch(error => {
+            document.getElementById('errorMessage').textContent = error;
+        });
+
+        // reload every 23 hours before token expiration
+        setTimeout(getAuthAndLoadDashboard, 1000 * 60 * 60 * 23);
+    }
+
+    function quit() {
+        const app = require('electron').remote.app;
+        app.quit();
+    }
+
+    function reloadCurrentDashboard() {
+        document.getElementById('dashboard').contentWindow.location.reload();
+    }
+
+    function myDashboards() {
+        document.getElementById('dashboard').src = `${rootUrl}?auth=${auth}`;
+    }
+
+    function loadDashboard(uuid) {
+        document.getElementById('dashboard').src = `${rootUrl}/webapps/${uuid}?auth=${auth}`;
+    }
+</script>
+
+<button onclick="quit()">Quit &#x2318;Q</button>
+<button onclick="getAuthAndLoadDashboard()">ReAuth</button>
+<button onclick="myDashboards()">My dashboards</button>
+<button onclick="reloadCurrentDashboard()">Reload dashboard</button>
+
+
+<div id="errorMessage"></div>
+
+<iframe width="100%"
+        height="95%"
+        scrolling="yes"
+        frameBorder="0"
+        id="dashboard">
+</iframe>
+
+</body>
+</html>
